@@ -1,0 +1,39 @@
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+android {
+    buildToolsVersion "29.0.3"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    compileSdkVersion 29
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 29
+    }
+}
+androidExtensions {
+    experimental = true
+}
+dependencies {
+    implementation libraries.appCompat
+    implementation libraries.coroutines
+    implementation libraries.glide
+    implementation libraries.glideOkHttp
+    implementation libraries.gson
+    implementation libraries.kotlin
+    implementation libraries.material
+    implementation libraries.okHttp
+    implementation libraries.recyclerView
+    implementation libraries.rxJava
+    implementation libraries.schedulersFactory
+    implementation libraries.swipeRefreshLayout
+    implementation libraries.viewModel
+    implementation project(":source:library")
+}
+repositories {
+    google()
+    jcenter()
+    maven { url "https://jitpack.io" }
+}

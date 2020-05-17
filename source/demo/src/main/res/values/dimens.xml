@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="card_width">108dp</dimen>
+    <dimen name="corner">8dp</dimen>
+    <dimen name="padding">4dp</dimen>
+</resources>

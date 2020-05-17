@@ -1,0 +1,9 @@
+*.iml
+
+/.gradle/
+/.idea/
+
+/build/
+/local.properties
+
+!/.idea/dictionaries/project.xml

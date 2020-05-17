@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="ru.g000sha256.reduktor.demo"
+    tools:ignore="ManifestOrder">
+    <application
+        android:name="ru.g000sha256.reduktor.demo.Application"
+        android:allowBackup="false"
+        android:label="@string/app"
+        android:theme="@style/App"
+        tools:ignore="MissingApplicationIcon">
+        <activity
+            android:name="ru.g000sha256.reduktor.demo.screen.main.MainActivity"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

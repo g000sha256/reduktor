@@ -1,0 +1,9 @@
+<resources>
+    <color name="black">#000000</color>
+    <color name="black_8">#14000000</color>
+    <color name="black_38">#61000000</color>
+    <color name="black_60">#99000000</color>
+    <color name="black_87">#DE000000</color>
+    <color name="lime">#9CCC65</color>
+    <color name="white">#FFFFFF</color>
+</resources>
