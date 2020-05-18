@@ -1,5 +1,5 @@
 <resources>
-    <string name="app">GitHub Users</string>
+    <string name="app">Reduktor Demo</string>
     <string name="dialog_button_no">No</string>
     <string name="dialog_button_yes">Yes</string>
     <string name="dialog_message">Open in browser?</string>

@@ -25,7 +25,7 @@ class MainUserViewHolder(
         textView.text = item.login
         requestManager
                 .load(item.avatarUrl)
-                .placeholder(R.color.black_8)
+                .placeholder(R.color.white_8)
                 .transition(drawableTransitionOptions)
                 .into(imageView)
         view.setOnClickListener {

@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif"
                 android:text="@string/error_title"
-                android:textColor="@color/black_38"
+                android:textColor="@color/white_38"
                 android:textSize="64sp" />
 
             <TextView
@@ -33,7 +33,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif"
                 android:gravity="center_horizontal"
-                android:textColor="@color/black_60"
+                android:textColor="@color/white_60"
                 android:textSize="18sp" />
 
             <TextView

@@ -163,7 +163,9 @@ class MainView(
                     val action = MainAction.StartLoading.Reload()
                     actionConsumer.accept(action)
                 }
-        val textView = snackBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        val view = snackBar.view
+        view.setBackgroundResource(R.color.gray_dark)
+        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         textView.maxLines = Int.MAX_VALUE
         snackBar.show()
     }

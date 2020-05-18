@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelStore
 import io.reactivex.rxjava3.core.Scheduler
 import ru.g000sha256.reduktor.Store
 import ru.g000sha256.reduktor.demo.Application
+import ru.g000sha256.reduktor.demo.BuildConfig
 
 class MainModule(
         private val application: Application,
@@ -56,7 +57,7 @@ class MainModule(
     }
 
     private fun createStore(): Store<MainAction, MainState, MainRouteEvent, MainViewEvent, MainViewState> {
-        val enableLogs = true
+        val enableLogs = BuildConfig.DEBUG
         val saveEvents = true
         val errorProvider = createErrorProvider()
         val mapper = createMapper(errorProvider)

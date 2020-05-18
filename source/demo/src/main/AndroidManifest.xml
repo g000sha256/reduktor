@@ -5,9 +5,10 @@
     <application
         android:name="ru.g000sha256.reduktor.demo.Application"
         android:allowBackup="false"
+        android:icon="@mipmap/ic_app_square"
         android:label="@string/app"
-        android:theme="@style/App"
-        tools:ignore="MissingApplicationIcon">
+        android:roundIcon="@mipmap/ic_app_circle"
+        android:theme="@style/App">
         <activity
             android:name="ru.g000sha256.reduktor.demo.screen.main.MainActivity"
             android:launchMode="singleInstance">
@@ -17,5 +18,8 @@
             </intent-filter>
         </activity>
     </application>
+    <uses-feature
+        android:name="android.hardware.faketouch"
+        android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

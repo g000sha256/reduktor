@@ -13,13 +13,13 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="@string/app"
-        android:textColor="@color/black_87"
+        android:textColor="@color/white_87"
         android:textSize="20sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/black_8" />
+        android:background="@color/white_8" />
 
     <FrameLayout
         android:id="@+id/content_frame_layout"

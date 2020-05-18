@@ -2,6 +2,6 @@
     android:inset="@dimen/padding">
     <shape android:shape="rectangle">
         <corners android:radius="@dimen/corner" />
-        <solid android:color="@color/white" />
+        <solid android:color="@color/gray" />
     </shape>
 </inset>

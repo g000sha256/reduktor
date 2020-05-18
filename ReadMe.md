@@ -1,6 +1,7 @@
-# Reduktor (WORK IN PROGRESS)
+# Reduktor
 [![License](https://img.shields.io/static/v1?label=License&message=MIT&color=blue)](https://github.com/g000sha256/reduktor/blob/master/License)
 ![JitPack](https://img.shields.io/jitpack/v/github/g000sha256/reduktor?color=green&label=Version)
+[![Demo](https://img.shields.io/static/v1?label=Demo&message=Google%20Play&color=green)](https://play.google.com/store/apps/details?id=ru.g000sha256.reduktor.demo)
 
 `Reduktor` is a `Kotlin` library that makes Your application development faster and easier.
 
@@ -18,12 +19,12 @@ This library works with `RxJava` and helps implement the `Unidirectional Data Fl
 * `Store` - main library class, which binds all components and contains actual states.
 
 ## Scheme of work
-<img src="scheme.png" width="1000" />
+<img src="images/scheme.png" width="1000" />
 
 ## Installation
 ```gradle
 dependencies {
-    implementation "com.github.g000sha256:reduktor:1.0.82"
+    implementation "com.github.g000sha256:reduktor:1.0.93"
 }
 repositories {
     maven { url "https://jitpack.io" }
@@ -90,7 +91,7 @@ class MainMiddleware(
 }
 ```
 
-## Code example
+## Demo ([GitHub](https://github.com/g000sha256/reduktor/blob/master/source/demo), [Google Play](https://play.google.com/store/apps/details?id=ru.g000sha256.reduktor.demo))
 An example is a simple `Android` application displaying a list of `GitHub` users.
 
 ### States:

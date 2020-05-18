@@ -3,6 +3,30 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 android {
     buildToolsVersion "29.0.3"
+    signingConfigs {
+        key {
+            keyAlias "Reduktor Demo"
+            keyPassword "sroz3rzlgyinf75o"
+            storeFile file("key")
+            storePassword "l26a83xjk9zu3ujp"
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled true
+            multiDexEnabled false
+            proguardFiles "proguard/debug.pro", "proguard/main.pro"
+            shrinkResources true
+            signingConfig signingConfigs.key
+        }
+        release {
+            minifyEnabled true
+            multiDexEnabled false
+            proguardFiles "proguard/main.pro", "proguard/release.pro"
+            shrinkResources true
+            signingConfig signingConfigs.key
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -11,6 +35,8 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 29
+        versionCode 3
+        versionName "1.0.93"
     }
 }
 androidExtensions {

@@ -15,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:fontFamily="sans-serif"
-        android:textColor="@color/black_60"
+        android:textColor="@color/white_60"
         android:textSize="16sp" />
 
     <TextView
