@@ -19,7 +19,8 @@ class MainReducer(private val pageLimit: MainPageLimit) : Reducer<MainAction, Ma
                         hasReloadPageLoading = false,
                         users = users,
                         firstPageThrowable = null,
-                        nextPageThrowable = null
+                        nextPageThrowable = null,
+                        user = action.user
                 )
             }
             is MainAction.Load.First.Error -> return state.copy(
@@ -91,7 +92,10 @@ class MainReducer(private val pageLimit: MainPageLimit) : Reducer<MainAction, Ma
                     firstPageThrowable = null,
                     nextPageThrowable = null
             )
-            is MainAction.Show.Dialog -> return state.copy(dialogUserId = action.userId)
+            is MainAction.Show.Dialog -> {
+                if (state.dialogUserId != null) return state
+                return state.copy(dialogUserId = action.userId)
+            }
             is MainAction.StopLoading -> return state.copy(
                     hasFirstPageLoading = false,
                     hasNextPageLoading = false,

@@ -13,9 +13,8 @@ This library works with `RxJava` and helps implement the `Unidirectional Data Fl
 
 ## Structure
 * `Mapper` - transforms action into route/view event, state into view state.
-* `Middleware` - contains business logic. It is infinite `Observable`.
+* `Middleware` - contains screen logic.
 * `Reducer` - changes state with a new action.
-* `StateAccessor` - contains the actual state.
 * `Store` - main library class, which binds all components and contains actual states.
 
 ## Scheme of work
@@ -24,18 +23,17 @@ This library works with `RxJava` and helps implement the `Unidirectional Data Fl
 ## Installation
 ```gradle
 dependencies {
-    implementation "com.github.g000sha256:reduktor:1.0.93"
+    implementation "com.github.g000sha256:reduktor:2.0.0"
 }
 repositories {
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
 }
 ```
 
 ## Usage
-`Store` will save state, view state, executed tasks and "missed" route/view events.
-If the router or view is unsubscribed then `Store` automatically saves all events until the subscription occurs again.
-Use `saveEvents = true` for this.
-This will not work if the process was killed.
+`Store` will save state, view state and executed tasks.
 
 You can enable logging using `enableLogs = true` and see all events and states.
 
@@ -50,7 +48,6 @@ private fun createStore(
 ): Store<MainAction, MainState, MainRouteEvent, MainViewEvent, MainViewState> {
     return Store(
             enableLogs = true,
-            saveEvents = true,
             mapper = MainMapper(),
             middleware = MainMiddleware(),
             reducer = MainReducer(),
@@ -62,13 +59,11 @@ private fun createStore(
 
 You can use `takeUntil` to cancel the task.
 ```kotlin
-class MainMiddleware(
-        private val repository: MainRepository
-) : Middleware<MainAction, MainState> {
+class MainMiddleware(private val repository: MainRepository) : Middleware<MainAction, MainState> {
 
-    override fun create(
+    override fun beforeReduce(
             actionObservable: Observable<MainAction>,
-            stateAccessor: StateAccessor<MainState>
+            stateAccessor: () -> MainState
     ): Observable<MainAction> {
         return actionObservable
                 .flatMap {
@@ -77,10 +72,10 @@ class MainMiddleware(
                             val stopObservable = actionObservable.ofType(MainAction.StopLoading::class.java)
                             return@flatMap repository
                                     .load()
-                                    .takeUntil(stopObservable)
                                     .map<MainAction> { MainAction.Load.Data(it) }
                                     .onErrorReturn { MainAction.Load.Error(it) }
                                     .startWithItem { MainAction.Load.Loading() }
+                                    .takeUntil(stopObservable)
                         }
                         ...
                         else -> return@flatMap Observable.empty<MainAction>()

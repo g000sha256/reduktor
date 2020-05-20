@@ -1,10 +1,10 @@
 <resources>
     <string name="app">Reduktor Demo</string>
-    <string name="dialog_button_no">No</string>
-    <string name="dialog_button_yes">Yes</string>
-    <string name="dialog_message">Open in browser?</string>
-    <string name="error_button">Retry</string>
-    <string name="error_message_activity_not_found">Application not found</string>
-    <string name="error_message_network">"Couldn't load data. Check your internet connection."</string>
-    <string name="error_title">:(</string>
+    <string name="main_dialog_button_no">No</string>
+    <string name="main_dialog_button_yes">Yes</string>
+    <string name="main_dialog_message">Open in browser?</string>
+    <string name="main_error_button">Retry</string>
+    <string name="main_error_message_activity_not_found">Application not found</string>
+    <string name="main_error_message_network">"Couldn't load data. Check your internet connection."</string>
+    <string name="main_error_title">:(</string>
 </resources>

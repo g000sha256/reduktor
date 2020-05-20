@@ -6,16 +6,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import io.reactivex.rxjava3.functions.Consumer
 import ru.g000sha256.reduktor.demo.R
 import ru.g000sha256.reduktor.demo.screen.main.MainAction
 import ru.g000sha256.reduktor.demo.screen.main.MainItem
 
 class MainUserViewHolder(
-        private val actionConsumer: Consumer<MainAction>,
         private val drawableTransitionOptions: DrawableTransitionOptions,
         private val requestManager: RequestManager,
-        private val view: View
+        private val view: View,
+        private val actionConsumer: (MainAction) -> Unit
 ) : RecyclerView.ViewHolder(view) {
 
     private val imageView = view.findViewById<ImageView>(R.id.image_view)
@@ -30,7 +29,7 @@ class MainUserViewHolder(
                 .into(imageView)
         view.setOnClickListener {
             val action = MainAction.Click.Item(item.id)
-            actionConsumer.accept(action)
+            actionConsumer(action)
         }
     }
 

@@ -1,58 +1,46 @@
 package ru.g000sha256.reduktor.demo.screen.main
 
-import android.content.Intent
+import android.app.Activity
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import ru.g000sha256.reduktor.demo.Application
-import ru.g000sha256.reduktor.demo.extension.plusAssign
 
 private const val KEY_STATE = "key_state"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
-    private val compositeDisposable = CompositeDisposable()
-
+    private lateinit var router: MainRouter
     private lateinit var view: MainView
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val state = savedInstanceState?.getParcelable<MainState>(KEY_STATE)
-        val module = MainModule(application as Application, viewModelStore, state)
-        viewModel = module.viewModel
-        val viewGroup = findViewById<ViewGroup>(android.R.id.content)
+        val application = application as Application
+        viewModel = lastNonConfigurationInstance ?: createViewModel(application, savedInstanceState)
+        val schedulersFactory = application.schedulersFactory
         val actionConsumer = viewModel.actionConsumer
-        val schedulersFactory = module.schedulersFactory
+        router = MainRouter(this, viewModel.routeEventObservable, schedulersFactory, actionConsumer)
+        val viewGroup = findViewById<ViewGroup>(android.R.id.content)
         view = MainView(
-                actionConsumer,
                 viewModel.viewEventObservable,
                 viewModel.viewStateObservable,
-                module.glideRequestManager,
+                application.glideRequestManager,
                 schedulersFactory,
+                actionConsumer,
                 viewGroup
         )
         view.onAttach()
-        compositeDisposable += viewModel
-                .routeEventObservable
-                .observeOn(schedulersFactory.mainDeferredScheduler)
-                .subscribe {
-                    when (it) {
-                        is MainRouteEvent.OpenBrowser -> {
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            intent.data = Uri.parse(it.url)
-                            try {
-                                startActivity(intent)
-                            } catch (throwable: Throwable) {
-                                val action = MainAction.ActivityNotFoundError()
-                                actionConsumer.accept(action)
-                            }
-                        }
-                    }
-                }
+    }
+
+    override fun getLastNonConfigurationInstance(): MainViewModel? {
+        return super.getLastNonConfigurationInstance() as MainViewModel?
+    }
+
+    override fun onStart() {
+        super.onStart()
+        router.onAttach()
+        viewModel.start()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -60,15 +48,31 @@ class MainActivity : AppCompatActivity() {
         recreate()
     }
 
+    override fun onStop() {
+        router.onDetach()
+        super.onStop()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(KEY_STATE, viewModel.stateAccessor.state)
+        val state = viewModel.stateAccessor()
+        outState.putParcelable(KEY_STATE, state)
+    }
+
+    override fun onRetainNonConfigurationInstance(): MainViewModel {
+        return viewModel
     }
 
     override fun onDestroy() {
-        compositeDisposable.clear()
         view.onDetach()
+        if (isFinishing) viewModel.stop()
         super.onDestroy()
+    }
+
+    private fun createViewModel(application: Application, bundle: Bundle?): MainViewModel {
+        val state = bundle?.getParcelable<MainState>(KEY_STATE)
+        val viewModelFactory = MainViewModelFactory(application, state)
+        return viewModelFactory.create()
     }
 
 }

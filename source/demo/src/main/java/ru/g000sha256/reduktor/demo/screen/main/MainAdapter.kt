@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import io.reactivex.rxjava3.functions.Consumer
 import ru.g000sha256.reduktor.demo.R
 import ru.g000sha256.reduktor.demo.screen.main.adapter.MainErrorViewHolder
 import ru.g000sha256.reduktor.demo.screen.main.adapter.MainLoadingViewHolder
@@ -16,9 +15,9 @@ private const val TYPE_LOADING = 2
 private const val TYPE_USER = 3
 
 class MainAdapter(
-        private val actionConsumer: Consumer<MainAction>,
         private val layoutInflater: LayoutInflater,
-        private val requestManager: RequestManager
+        private val requestManager: RequestManager,
+        private val actionConsumer: (MainAction) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = ArrayList<MainItem>()
@@ -50,7 +49,7 @@ class MainAdapter(
             }
             TYPE_USER -> {
                 val view = layoutInflater.inflate(R.layout.main_data_user, parent, false)
-                return MainUserViewHolder(actionConsumer, drawableTransitionOptions, requestManager, view)
+                return MainUserViewHolder(drawableTransitionOptions, requestManager, view, actionConsumer)
             }
             else -> throw IllegalArgumentException()
         }

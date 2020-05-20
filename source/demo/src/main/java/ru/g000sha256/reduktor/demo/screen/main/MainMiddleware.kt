@@ -2,8 +2,8 @@ package ru.g000sha256.reduktor.demo.screen.main
 
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.functions.BiFunction
 import ru.g000sha256.reduktor.Middleware
-import ru.g000sha256.reduktor.StateAccessor
 import ru.g000sha256.reduktor.demo.extension.startWithItem
 import ru.g000sha256.reduktor.demo.model.User
 import ru.g000sha256.schedulers_factory.SchedulersFactory
@@ -15,9 +15,9 @@ class MainMiddleware(
         private val schedulersFactory: SchedulersFactory
 ) : Middleware<MainAction, MainState> {
 
-    override fun create(
+    override fun beforeReduce(
             actionObservable: Observable<MainAction>,
-            stateAccessor: StateAccessor<MainState>
+            stateAccessor: () -> MainState
     ): Observable<MainAction> {
         val startObservable = createStartObservable(stateAccessor)
         return actionObservable
@@ -30,7 +30,9 @@ class MainMiddleware(
                         is MainAction.Click.Dialog -> {
                             val action1 = MainAction.ClearDialogUserId()
                             val userId = it.userId ?: return@flatMap Observable.just(action1)
-                            val user = stateAccessor.state.users.find { user -> user.id == userId }
+                            val state = stateAccessor()
+                            var user = state.users.find { user -> user.id == userId }
+                            if (user == null && state.user?.id == userId) user = state.user
                             user ?: return@flatMap Observable.just(action1)
                             val action2 = MainAction.OpenBrowser(user.browserUrl)
                             return@flatMap Observable.just(action1, action2)
@@ -41,7 +43,8 @@ class MainMiddleware(
                         }
                         is MainAction.Click.Retry -> {
                             val action1 = MainAction.ClearErrors()
-                            val isEmpty = stateAccessor.state.users.isEmpty()
+                            val state = stateAccessor()
+                            val isEmpty = state.users.isEmpty()
                             if (isEmpty) {
                                 val action2 = MainAction.StartLoading.First()
                                 return@flatMap Observable.just(action1, action2)
@@ -50,13 +53,19 @@ class MainMiddleware(
                                 return@flatMap Observable.just(action1, action2)
                             }
                         }
+                        is MainAction.Init -> {
+                            val state = stateAccessor()
+                            val dialogUserId = state.dialogUserId ?: return@flatMap Observable.empty<MainAction>()
+                            val action = MainAction.Show.Dialog(dialogUserId)
+                            return@flatMap Observable.just(action)
+                        }
                         is MainAction.Load.Reload.Error -> {
                             val text = errorProvider.getNetworkError(it.throwable)
                             val action = MainAction.Show.SnackBar(text)
                             return@flatMap Observable.just(action)
                         }
                         is MainAction.StartLoading.First -> {
-                            val state = stateAccessor.state
+                            val state = stateAccessor()
                             if (state.hasNextPageLoading || state.hasReloadPageLoading) {
                                 val action = MainAction.StopLoading()
                                 return@flatMap Observable.just(action, it)
@@ -64,13 +73,19 @@ class MainMiddleware(
                             if (!state.allowLoadMore) return@flatMap Observable.empty<MainAction>()
                             if (state.hasFirstPageError) return@flatMap Observable.empty<MainAction>()
                             if (state.hasFirstPageLoading) return@flatMap Observable.empty<MainAction>()
-                            return@flatMap createLoadObservable(actionObservable, lastUserId = null)
-                                    .map<MainAction> { users -> MainAction.Load.First.Data(users) }
+                            val usersObservable = createLoadObservable(actionObservable, lastUserId = null)
+                            val userObservable = repository
+                                    .loadUser()
+                                    .toObservable()
+                            val biFunction = BiFunction<User, List<User>, Pair<User, List<User>>> { user, users -> user to users }
+                            return@flatMap Observable
+                                    .zip(userObservable, usersObservable, biFunction)
+                                    .map<MainAction> { pair -> MainAction.Load.First.Data(pair.first, pair.second) }
                                     .onErrorReturn { throwable -> MainAction.Load.First.Error(throwable) }
                                     .startWithItem { MainAction.Load.First.Loading() }
                         }
                         is MainAction.StartLoading.Next -> {
-                            val state = stateAccessor.state
+                            val state = stateAccessor()
                             if (state.hasFirstPageLoading || state.hasReloadPageLoading) {
                                 val action = MainAction.StopLoading()
                                 return@flatMap Observable.just(action, it)
@@ -85,7 +100,7 @@ class MainMiddleware(
                                     .startWithItem { MainAction.Load.Next.Loading() }
                         }
                         is MainAction.StartLoading.Reload -> {
-                            val state = stateAccessor.state
+                            val state = stateAccessor()
                             if (state.hasFirstPageLoading || state.hasNextPageLoading) {
                                 val action = MainAction.StopLoading()
                                 return@flatMap Observable.just(action, it)
@@ -97,15 +112,14 @@ class MainMiddleware(
                                     .onErrorReturn { throwable -> MainAction.Load.Reload.Error(throwable) }
                                     .startWithItem { MainAction.Load.Reload.Loading() }
                         }
-                        is MainAction.ViewAttached -> {
-                            val dialogUserId = stateAccessor.state.dialogUserId ?: return@flatMap Observable.empty<MainAction>()
-                            val action = MainAction.Show.Dialog(dialogUserId)
-                            return@flatMap Observable.just(action)
-                        }
                         else -> return@flatMap Observable.empty<MainAction>()
                     }
                 }
                 .mergeWith(startObservable)
+    }
+
+    override fun afterReduce(actionObservable: Observable<MainAction>, stateAccessor: () -> MainState): Observable<MainAction> {
+        return Observable.empty()
     }
 
     private fun createLoadObservable(actionObservable: Observable<MainAction>, lastUserId: Long?): Observable<List<User>> {
@@ -114,7 +128,7 @@ class MainMiddleware(
                 .observeOn(schedulersFactory.ioScheduler)
         val stopObservable = actionObservable.ofType(MainAction.StopLoading::class.java)
         return repository
-                .load(lastUserId)
+                .loadUsers(lastUserId)
                 .onErrorResumeNext { throwable ->
                     return@onErrorResumeNext timerSingle
                             .doOnSuccess { throw throwable }
@@ -124,9 +138,10 @@ class MainMiddleware(
                 .takeUntil(stopObservable)
     }
 
-    private fun createStartObservable(stateAccessor: StateAccessor<MainState>): Observable<MainAction> {
+    private fun createStartObservable(stateAccessor: () -> MainState): Observable<MainAction> {
         val action1 = MainAction.StopLoading()
-        val isEmpty = stateAccessor.state.users.isEmpty()
+        val state = stateAccessor()
+        val isEmpty = state.users.isEmpty()
         if (isEmpty) {
             val action2 = MainAction.StartLoading.First()
             return Observable.just(action1, action2)

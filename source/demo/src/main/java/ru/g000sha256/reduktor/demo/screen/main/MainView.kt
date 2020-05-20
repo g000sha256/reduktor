@@ -14,7 +14,6 @@ import com.bumptech.glide.RequestManager
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.functions.Consumer
 import ru.g000sha256.reduktor.demo.R
 import ru.g000sha256.reduktor.demo.extension.plusAssign
 import ru.g000sha256.schedulers_factory.SchedulersFactory
@@ -25,11 +24,11 @@ private const val ID_ERROR = 2
 private const val ID_LOADING = 3
 
 class MainView(
-        private val actionConsumer: Consumer<MainAction>,
         private val viewEventObservable: Observable<MainViewEvent>,
         private val viewStateObservable: Observable<MainViewState>,
         private val requestManager: RequestManager,
         private val schedulersFactory: SchedulersFactory,
+        private val actionConsumer: (MainAction) -> Unit,
         rootViewGroup: ViewGroup
 ) {
 
@@ -56,6 +55,7 @@ class MainView(
                 }
         compositeDisposable += viewStateObservable
                 .observeOn(schedulersFactory.mainImmediateScheduler)
+                .distinctUntilChanged()
                 .subscribe {
                     when (it) {
                         is MainViewState.Data -> showData(it.isRefreshing, it.items)
@@ -63,8 +63,6 @@ class MainView(
                         is MainViewState.Loading -> showLoading()
                     }
                 }
-        val action = MainAction.ViewAttached()
-        actionConsumer.accept(action)
     }
 
     fun onDetach() {
@@ -86,7 +84,7 @@ class MainView(
             adapter.notifyDataSetChanged()
             val swipeRefreshLayout = contentViewGroup.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
             swipeRefreshLayout.isRefreshing = isRefreshing
-            val scrollListener = MainScrollListener(actionConsumer, recyclerView.layoutManager as StaggeredGridLayoutManager)
+            val scrollListener = MainScrollListener(recyclerView.layoutManager as StaggeredGridLayoutManager, actionConsumer)
             scrollListener.onScrolled(recyclerView, 0, 0)
         } else {
             contentViewGroup.tag = ID_DATA
@@ -94,44 +92,46 @@ class MainView(
             val view = View.inflate(context, R.layout.main_data, contentViewGroup)
             val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
             val layoutInflater = LayoutInflater.from(context)
-            val adapter = MainAdapter(actionConsumer, layoutInflater, requestManager)
+            val adapter = MainAdapter(layoutInflater, requestManager, actionConsumer)
             recyclerView.adapter = adapter
             adapter.setItems(items)
             val columnsCount = calculateColumnsCount()
             val staggeredGridLayoutManager = StaggeredGridLayoutManager(columnsCount, StaggeredGridLayoutManager.VERTICAL)
             recyclerView.layoutManager = staggeredGridLayoutManager
-            val scrollListener = MainScrollListener(actionConsumer, staggeredGridLayoutManager)
+            val scrollListener = MainScrollListener(staggeredGridLayoutManager, actionConsumer)
             recyclerView.addOnScrollListener(scrollListener)
             val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
             swipeRefreshLayout.isRefreshing = isRefreshing
             swipeRefreshLayout.setColorSchemeResources(R.color.lime)
             swipeRefreshLayout.setOnRefreshListener {
                 val action = MainAction.StartLoading.Reload()
-                actionConsumer.accept(action)
+                actionConsumer(action)
             }
         }
     }
 
     private fun showDialog(userId: Long) {
-        dialog?.dismiss()
-        val dialog = AlertDialog.Builder(context)
-                .setMessage(R.string.dialog_message)
-                .setNegativeButton(R.string.dialog_button_no) { _, _ ->
+        if (dialog != null) return
+        val alertDialog = AlertDialog.Builder(context)
+                .setMessage(R.string.main_dialog_message)
+                .setNegativeButton(R.string.main_dialog_button_no) { _, _ ->
+                    dialog = null
                     val action = MainAction.Click.Dialog(userId = null)
-                    actionConsumer.accept(action)
+                    actionConsumer(action)
                 }
-                .setPositiveButton(R.string.dialog_button_yes) { _, _ ->
+                .setPositiveButton(R.string.main_dialog_button_yes) { _, _ ->
+                    dialog = null
                     val action = MainAction.Click.Dialog(userId)
-                    actionConsumer.accept(action)
+                    actionConsumer(action)
                 }
                 .create()
-        dialog.setOnDismissListener { this.dialog = null }
-        dialog.setOnCancelListener {
+        alertDialog.setOnCancelListener {
+            dialog = null
             val action = MainAction.Click.Dialog(userId = null)
-            actionConsumer.accept(action)
+            actionConsumer(action)
         }
-        dialog.show()
-        this.dialog = dialog
+        alertDialog.show()
+        dialog = alertDialog
     }
 
     private fun showError(text: String) {
@@ -145,7 +145,7 @@ class MainView(
                 .findViewById<View>(R.id.button_text_view)
                 .setOnClickListener {
                     val action = MainAction.Click.Retry()
-                    actionConsumer.accept(action)
+                    actionConsumer(action)
                 }
     }
 
@@ -159,14 +159,14 @@ class MainView(
     private fun showSnackBar(text: String) {
         val snackBar = Snackbar
                 .make(contentViewGroup, text, Snackbar.LENGTH_SHORT)
-                .setAction(R.string.error_button) {
+                .setAction(R.string.main_error_button) {
                     val action = MainAction.StartLoading.Reload()
-                    actionConsumer.accept(action)
+                    actionConsumer(action)
                 }
         val view = snackBar.view
         view.setBackgroundResource(R.color.gray_dark)
         val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        textView.maxLines = Int.MAX_VALUE
+        textView.maxLines = 8
         snackBar.show()
     }
 

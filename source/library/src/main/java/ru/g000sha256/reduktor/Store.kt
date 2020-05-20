@@ -3,22 +3,21 @@ package ru.g000sha256.reduktor
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
-import java.util.LinkedList
 
-private const val ARROW_IN = "-->: "
-private const val ARROW_OUT = "<--: "
-private const val KEY_ACTION = "Action     "
-private const val KEY_ROUTE_EVENT = "RouteEvent "
-private const val KEY_STATE = "State      "
-private const val KEY_VIEW_EVENT = "ViewEvent  "
-private const val KEY_VIEW_STATE = "ViewState  "
+private const val ARROW_IN = "--> "
+private const val ARROW_OUT = "<-- "
+private const val KEY_ACTION_AFTER = "Action (After)  "
+private const val KEY_ACTION_BEFORE = "Action (Before) "
+private const val KEY_ROUTE_EVENT = "RouteEvent      "
+private const val KEY_STATE = "State           "
+private const val KEY_VIEW_EVENT = "ViewEvent       "
+private const val KEY_VIEW_STATE = "ViewState       "
+private const val TAG = "Reduktor:"
 
 class Store<Action, State, RouteEvent, ViewEvent, ViewState>(
         private val enableLogs: Boolean,
-        private val saveEvents: Boolean,
         private val mapper: Mapper<Action, State, RouteEvent, ViewEvent, ViewState>,
         private val middleware: Middleware<Action, State>,
         private val reducer: Reducer<Action, State>,
@@ -26,35 +25,24 @@ class Store<Action, State, RouteEvent, ViewEvent, ViewState>(
         state: State
 ) {
 
-    val actionConsumer: Consumer<Action>
     val routeEventObservable: Observable<RouteEvent>
     val viewEventObservable: Observable<ViewEvent>
     val viewStateObservable: Observable<ViewState>
-    val stateAccessor: StateAccessor<State>
+    val actionConsumer: (Action) -> Unit = { actionPublishSubject.onNext(it) }
+    val stateAccessor: () -> State = { stateBehaviorSubject.value }
 
     private val stateBehaviorSubject = BehaviorSubject.createDefault(state)
-    private val routeEventLinkedList = LinkedList<RouteEvent>()
-    private val viewEventLinkedList = LinkedList<ViewEvent>()
     private val actionPublishSubject = PublishSubject.create<Action>()
     private val routeEventPublishSubject = PublishSubject.create<RouteEvent>()
     private val viewEventPublishSubject = PublishSubject.create<ViewEvent>()
 
+    @Volatile
     private var disposable: Disposable? = null
 
     init {
-        actionConsumer = Consumer(actionPublishSubject::onNext)
         routeEventObservable = routeEventPublishSubject
-                .startWithIterable(routeEventLinkedList)
-                .observeOn(scheduler)
-                .doOnNext { routeEventLinkedList.remove(it) }
         viewEventObservable = viewEventPublishSubject
-                .startWithIterable(viewEventLinkedList)
-                .observeOn(scheduler)
-                .doOnNext { viewEventLinkedList.remove(it) }
-        viewStateObservable = stateBehaviorSubject
-                .map(::mapViewState)
-                .distinctUntilChanged()
-        stateAccessor = StateAccessor<State>(stateBehaviorSubject)
+        viewStateObservable = stateBehaviorSubject.map(::mapViewState)
     }
 
     fun subscribe(): Disposable {
@@ -62,46 +50,59 @@ class Store<Action, State, RouteEvent, ViewEvent, ViewState>(
                 .just(Unit)
                 .observeOn(scheduler)
                 .flatMap {
-                    val actionObservable = actionPublishSubject
+                    val afterPublishSubject = PublishSubject.create<Action>()
+                    val afterActionObservable = middleware
+                            .afterReduce(afterPublishSubject, stateAccessor)
                             .observeOn(scheduler)
-                            .doOnNext { log("$KEY_ACTION$ARROW_IN$it") }
-                    return@flatMap middleware.create(actionObservable, stateAccessor)
+                            .map {
+                                log("$KEY_ACTION_AFTER$ARROW_OUT$it")
+                                actionPublishSubject.onNext(it)
+                            }
+                    val beforePublishSubject = PublishSubject.create<Action>()
+                    val beforeActionObservable = middleware
+                            .beforeReduce(beforePublishSubject, stateAccessor)
+                            .observeOn(scheduler)
+                            .map {
+                                log("$KEY_ACTION_BEFORE$ARROW_OUT$it")
+                                actionPublishSubject.onNext(it)
+                            }
+                    return@flatMap actionPublishSubject
+                            .observeOn(scheduler)
+                            .map {
+                                println(TAG)
+                                log("$KEY_ACTION_BEFORE$ARROW_IN$it")
+                                beforePublishSubject.onNext(it)
+                                reduceState(it)
+                                log("$KEY_ACTION_AFTER$ARROW_IN$it")
+                                afterPublishSubject.onNext(it)
+                                mapRouteEvent(it)
+                                mapViewEvent(it)
+                                println(TAG)
+                            }
+                            .mergeWith(afterActionObservable)
+                            .mergeWith(beforeActionObservable)
                 }
-                .observeOn(scheduler)
-                .map {
-                    log("$KEY_ACTION$ARROW_OUT$it")
-                    reduceState(it)
-                    mapRouteEvent(it)
-                    mapViewEvent(it)
-                    actionPublishSubject.onNext(it)
-                }
-                .doOnDispose { disposable = null }
-                .doOnSubscribe { disposable = it }
+                .doOnTerminate { disposable = null }
                 .subscribe()
+                .apply { disposable = this }
     }
 
     private fun log(message: String) {
         if (!enableLogs) return
-        println("Reduktor: $message")
+        println("$TAG $message")
+        val thread = Thread.currentThread()
+        println("$TAG                     ${thread.name}")
     }
 
     private fun mapRouteEvent(action: Action) {
-        log("$KEY_ROUTE_EVENT$ARROW_IN$action")
         val routeEvent = mapper.actionToRouteEvent(action) ?: return
         log("$KEY_ROUTE_EVENT$ARROW_OUT$routeEvent")
-        if (saveEvents) {
-            routeEventLinkedList.add(routeEvent)
-        }
         routeEventPublishSubject.onNext(routeEvent)
     }
 
     private fun mapViewEvent(action: Action) {
-        log("$KEY_VIEW_EVENT$ARROW_IN$action")
         val viewEvent = mapper.actionToViewEvent(action) ?: return
         log("$KEY_VIEW_EVENT$ARROW_OUT$viewEvent")
-        if (saveEvents) {
-            viewEventLinkedList.add(viewEvent)
-        }
         viewEventPublishSubject.onNext(viewEvent)
     }
 
@@ -113,8 +114,7 @@ class Store<Action, State, RouteEvent, ViewEvent, ViewState>(
     }
 
     private fun reduceState(action: Action) {
-        val oldState = stateAccessor.state
-        log("$KEY_STATE$ARROW_IN$action")
+        val oldState = stateAccessor()
         log("$KEY_STATE$ARROW_IN$oldState")
         val newState = reducer.reduce(action, oldState)
         if (newState == oldState) return

@@ -20,8 +20,8 @@
 
     <TextView
         android:id="@+id/button_text_view"
-        style="@style/Widget.Button"
+        style="@style/Widget.Button.Flat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/error_button" />
+        android:text="@string/main_error_button" />
 </LinearLayout>

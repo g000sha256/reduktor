@@ -10,9 +10,15 @@ class MainRepository(
         private val schedulersFactory: SchedulersFactory
 ) {
 
-    fun load(lastUserId: Long?): Single<List<User>> {
+    fun loadUser(): Single<User> {
         return api
-                .loadUsers(pageLimit.value, lastUserId)
+                .getUser()
+                .subscribeOn(schedulersFactory.ioScheduler)
+    }
+
+    fun loadUsers(lastUserId: Long?): Single<List<User>> {
+        return api
+                .getUsers(pageLimit.value, lastUserId)
                 .subscribeOn(schedulersFactory.ioScheduler)
     }
 
