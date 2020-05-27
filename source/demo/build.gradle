@@ -35,31 +35,32 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.0.93"
+        versionCode 4
+        versionName "2.0.0"
     }
 }
 androidExtensions {
     experimental = true
 }
 dependencies {
-    implementation libraries.appCompat
-    implementation libraries.coroutines
-    implementation libraries.glide
-    implementation libraries.glideOkHttp
+    implementation libraries.androidX.appCompat
+    implementation libraries.androidX.recyclerView
+    implementation libraries.androidX.swipeRefreshLayout
+    implementation libraries.glide.core
+    implementation libraries.glide.okHttp
     implementation libraries.gson
     implementation libraries.kotlin
     implementation libraries.material
     implementation libraries.okHttp
-    implementation libraries.recyclerView
     implementation libraries.rxJava
-    implementation libraries.schedulersFactory
-    implementation libraries.swipeRefreshLayout
-    implementation libraries.viewModel
+    implementation libraries.schedulersFactory.android
+    implementation libraries.schedulersFactory.core
     implementation project(":source:library")
 }
 repositories {
     google()
     jcenter()
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
 }

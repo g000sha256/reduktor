@@ -5,7 +5,7 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="56dp"
         android:ellipsize="end"
         android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"

@@ -9,14 +9,14 @@ import com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory
 import com.bumptech.glide.load.engine.cache.MemorySizeCalculator
 import com.bumptech.glide.load.model.GlideUrl
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
+import ru.g000sha256.scheduler.MainSchedulerFactoryImpl
 import ru.g000sha256.schedulers_factory.SchedulersFactory
 import ru.g000sha256.schedulers_factory.SchedulersFactoryImpl
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import com.bumptech.glide.RequestManager as GlideRequestManager
-import ru.g000sha256.reduktor.demo.util.RequestManager as ApiRequestManager
+import ru.g000sha256.reduktor.demo.network.RequestManager as ApiRequestManager
 
 class Application : Application() {
 
@@ -56,7 +56,8 @@ class Application : Application() {
     }
 
     private fun initSchedulersFactory(): SchedulersFactory {
-        return SchedulersFactoryImpl(mainCoroutineDispatcher = Dispatchers.Main)
+        val mainSchedulerFactory = MainSchedulerFactoryImpl()
+        return SchedulersFactoryImpl(mainSchedulerFactory)
     }
 
 }

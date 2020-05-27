@@ -31,10 +31,14 @@ class MainMapper(
             state.hasFirstPageLoading -> return MainViewState.Loading()
             state.users.isEmpty() -> return MainViewState.Loading()
             else -> {
-                val items = state
-                        .users
-                        .map { MainItem.User(it.id, it.avatarUrl, it.login) }
-                        .toMutableList<MainItem>()
+                val myUser = state.user!!
+                val myUserItem = MainItem.User(myUser.id, myUser.avatarUrl, myUser.login)
+                val items = ArrayList<MainItem>()
+                state.users.forEachIndexed { index, user ->
+                    if (index % 10 == 0) items.add(myUserItem)
+                    val userItem = MainItem.User(user.id, user.avatarUrl, user.login)
+                    items.add(userItem)
+                }
                 if (state.hasNextPageError) {
                     val text = errorProvider.getNetworkError(state.nextPageThrowable)
                     val item = MainItem.Error(text)

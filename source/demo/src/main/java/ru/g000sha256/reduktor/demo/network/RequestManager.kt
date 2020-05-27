@@ -1,4 +1,4 @@
-package ru.g000sha256.reduktor.demo.util
+package ru.g000sha256.reduktor.demo.network
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

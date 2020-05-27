@@ -9,6 +9,9 @@ dependencies {
     implementation libraries.kotlin
     implementation libraries.rxJava
 }
+jar {
+    exclude "META-INF/library.kotlin_module"
+}
 repositories {
     jcenter()
 }

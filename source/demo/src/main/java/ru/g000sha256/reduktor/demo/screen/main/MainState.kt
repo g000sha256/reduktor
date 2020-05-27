@@ -13,7 +13,8 @@ data class MainState(
         val users: List<User> = emptyList(),
         val dialogUserId: Long? = null,
         val firstPageThrowable: Throwable? = null,
-        val nextPageThrowable: Throwable? = null
+        val nextPageThrowable: Throwable? = null,
+        val user: User? = null
 ) : Parcelable {
 
     val hasFirstPageError: Boolean

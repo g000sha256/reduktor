@@ -10,11 +10,11 @@ sealed class MainAction {
 
     class ClearErrors : MainAction()
 
+    class Init : MainAction()
+
     class OpenBrowser(val url: String) : MainAction()
 
     class StopLoading : MainAction()
-
-    class ViewAttached : MainAction()
 
     sealed class Click : MainAction() {
 
@@ -30,7 +30,7 @@ sealed class MainAction {
 
         sealed class First : Load() {
 
-            class Data(val users: List<User>) : First()
+            class Data(val user: User, val users: List<User>) : First()
 
             class Error(val throwable: Throwable) : First()
 

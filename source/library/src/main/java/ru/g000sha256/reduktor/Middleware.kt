@@ -4,6 +4,8 @@ import io.reactivex.rxjava3.core.Observable
 
 interface Middleware<Action, State> {
 
-    fun create(actionObservable: Observable<Action>, stateAccessor: StateAccessor<State>): Observable<Action>
+    fun beforeReduce(actionObservable: Observable<Action>, stateAccessor: () -> State): Observable<Action>
+
+    fun afterReduce(actionObservable: Observable<Action>, stateAccessor: () -> State): Observable<Action>
 
 }

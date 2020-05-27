@@ -22,7 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif"
-                android:text="@string/error_title"
+                android:text="@string/main_error_title"
                 android:textColor="@color/white_38"
                 android:textSize="64sp" />
 
@@ -38,11 +38,11 @@
 
             <TextView
                 android:id="@+id/button_text_view"
-                style="@style/Widget.Button"
+                style="@style/Widget.Button.Flat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/error_button" />
+                android:text="@string/main_error_button" />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
