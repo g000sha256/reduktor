@@ -1,13 +1,13 @@
 # Reduktor
 [![License](https://img.shields.io/static/v1?label=License&message=MIT&color=blue)](https://github.com/g000sha256/reduktor/blob/master/License)
-![JitPack](https://img.shields.io/jitpack/v/github/g000sha256/reduktor?color=green&label=Version)
+[![JitPack](https://img.shields.io/jitpack/v/github/g000sha256/reduktor?color=green&label=Version)](https://jitpack.io/#g000sha256/reduktor)
 [![Demo](https://img.shields.io/static/v1?label=Demo&message=Google%20Play&color=green)](https://play.google.com/store/apps/details?id=ru.g000sha256.reduktor.demo)
 
 `Reduktor` is a `Kotlin` library that makes Your application development faster and easier.
 
 This library works with `RxJava` and helps implement the `Unidirectional Data Flow` pattern.
 
-## Used libraries
+### Used libraries
 * [Kotlin](https://github.com/JetBrains/kotlin)
 * [RxJava 3](https://github.com/ReactiveX/RxJava)
 
@@ -82,6 +82,8 @@ class MainMiddleware(private val repository: MainRepository) : Middleware<MainAc
                     }
                 }
     }
+
+    ...
 
 }
 ```
