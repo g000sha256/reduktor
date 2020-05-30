@@ -12,11 +12,11 @@ class MainViewModelFactory(private val application: Application, private val sta
         val mapper = MainMapper(errorProvider)
         val api = MainApi(application.apiRequestManager)
         val pageLimit = MainPageLimit()
-        val schedulersFactory = application.schedulersFactory
-        val repository = MainRepository(api, pageLimit, schedulersFactory)
-        val middleware = MainMiddleware(errorProvider, repository, schedulersFactory)
+        val schedulersHolder = application.schedulersHolder
+        val repository = MainRepository(api, pageLimit, schedulersHolder)
+        val middleware = MainMiddleware(errorProvider, repository, schedulersHolder)
         val reducer = MainReducer(pageLimit)
-        val scheduler = schedulersFactory.createOneThreadScheduler()
+        val scheduler = application.schedulersFactory.createOneThreadScheduler()
         val state = state ?: MainState()
         val store = Store(enableLogs, mapper, middleware, reducer, scheduler, state)
         return MainViewModel(store)

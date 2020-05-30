@@ -16,7 +16,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import ru.g000sha256.reduktor.demo.R
 import ru.g000sha256.reduktor.demo.extension.plusAssign
-import ru.g000sha256.schedulers_factory.SchedulersFactory
+import ru.g000sha256.schedulers.SchedulersHolder
 import kotlin.math.max
 
 private const val ID_DATA = 1
@@ -27,7 +27,7 @@ class MainView(
         private val viewEventObservable: Observable<MainViewEvent>,
         private val viewStateObservable: Observable<MainViewState>,
         private val requestManager: RequestManager,
-        private val schedulersFactory: SchedulersFactory,
+        private val schedulersHolder: SchedulersHolder,
         private val actionConsumer: (MainAction) -> Unit,
         rootViewGroup: ViewGroup
 ) {
@@ -45,7 +45,7 @@ class MainView(
 
     fun onAttach() {
         compositeDisposable += viewEventObservable
-                .observeOn(schedulersFactory.mainDeferredScheduler)
+                .observeOn(schedulersHolder.mainDeferredScheduler)
                 .subscribe {
                     when (it) {
                         is MainViewEvent.Show.Dialog -> showDialog(it.userId)
@@ -54,7 +54,7 @@ class MainView(
                     }
                 }
         compositeDisposable += viewStateObservable
-                .observeOn(schedulersFactory.mainImmediateScheduler)
+                .observeOn(schedulersHolder.mainImmediateScheduler)
                 .distinctUntilChanged()
                 .subscribe {
                     when (it) {

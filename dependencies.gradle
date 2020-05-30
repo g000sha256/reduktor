@@ -1,29 +1,29 @@
 ext {
     final String versionGlide = "4.11.0"
     final String versionKotlin = "1.3.72"
-    final String versionSchedulersFactory = "2.0.0"
-    gradlePlugins = [
-            android: "com.android.tools.build:gradle:3.6.3",
-            kotlin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versionKotlin"
-    ]
-    libraries = [
-            gson             : "com.google.code.gson:gson:2.8.6",
-            kotlin           : "org.jetbrains.kotlin:kotlin-stdlib:$versionKotlin",
-            material         : "com.google.android.material:material:1.1.0",
-            okHttp           : "com.squareup.okhttp3:okhttp:4.7.1",
-            rxJava           : "io.reactivex.rxjava3:rxjava:3.0.4",
-            androidX         : [
+    final String versionSchedulersFactory = "3.0.0"
+    gradleLibrary = [
+            gson      : "com.google.code.gson:gson:2.8.6",
+            kotlin    : "org.jetbrains.kotlin:kotlin-stdlib:$versionKotlin",
+            material  : "com.google.android.material:material:1.1.0",
+            okHttp    : "com.squareup.okhttp3:okhttp:4.7.1",
+            rxJava    : "io.reactivex.rxjava3:rxjava:3.0.4",
+            androidX  : [
                     appCompat         : "androidx.appcompat:appcompat:1.1.0",
                     recyclerView      : "androidx.recyclerview:recyclerview:1.1.0",
                     swipeRefreshLayout: "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
             ],
-            glide            : [
+            glide     : [
                     core  : "com.github.bumptech.glide:glide:$versionGlide",
                     okHttp: "com.github.bumptech.glide:okhttp3-integration:$versionGlide"
             ],
-            schedulersFactory: [
-                    android: "com.github.g000sha256.schedulers-factory:android:$versionSchedulersFactory",
-                    core   : "com.github.g000sha256.schedulers-factory:core:$versionSchedulersFactory"
+            schedulers: [
+                    android: "com.github.g000sha256.schedulers:android:$versionSchedulersFactory",
+                    core   : "com.github.g000sha256.schedulers:core:$versionSchedulersFactory"
             ]
+    ]
+    gradlePlugin = [
+            android: "com.android.tools.build:gradle:4.0.0",
+            kotlin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versionKotlin"
     ]
 }

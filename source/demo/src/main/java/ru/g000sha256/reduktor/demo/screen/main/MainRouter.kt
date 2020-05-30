@@ -6,12 +6,12 @@ import android.net.Uri
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import ru.g000sha256.reduktor.demo.extension.plusAssign
-import ru.g000sha256.schedulers_factory.SchedulersFactory
+import ru.g000sha256.schedulers.SchedulersHolder
 
 class MainRouter(
         private val context: Context,
         private val routeEventObservable: Observable<MainRouteEvent>,
-        private val schedulersFactory: SchedulersFactory,
+        private val schedulersHolder: SchedulersHolder,
         private val actionConsumer: (MainAction) -> Unit
 ) {
 
@@ -19,7 +19,7 @@ class MainRouter(
 
     fun onAttach() {
         compositeDisposable += routeEventObservable
-                .observeOn(schedulersFactory.mainDeferredScheduler)
+                .observeOn(schedulersHolder.mainDeferredScheduler)
                 .subscribe {
                     when (it) {
                         is MainRouteEvent.OpenBrowser -> {

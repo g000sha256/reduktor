@@ -6,13 +6,13 @@ import io.reactivex.rxjava3.functions.BiFunction
 import ru.g000sha256.reduktor.Middleware
 import ru.g000sha256.reduktor.demo.extension.startWithItem
 import ru.g000sha256.reduktor.demo.model.User
-import ru.g000sha256.schedulers_factory.SchedulersFactory
+import ru.g000sha256.schedulers.SchedulersHolder
 import java.util.concurrent.TimeUnit
 
 class MainMiddleware(
         private val errorProvider: MainErrorProvider,
         private val repository: MainRepository,
-        private val schedulersFactory: SchedulersFactory
+        private val schedulersHolder: SchedulersHolder
 ) : Middleware<MainAction, MainState> {
 
     override fun beforeReduce(
@@ -124,8 +124,8 @@ class MainMiddleware(
 
     private fun createLoadObservable(actionObservable: Observable<MainAction>, lastUserId: Long?): Observable<List<User>> {
         val timerSingle = Single
-                .timer(250L, TimeUnit.MILLISECONDS, schedulersFactory.computationScheduler)
-                .observeOn(schedulersFactory.ioScheduler)
+                .timer(250L, TimeUnit.MILLISECONDS, schedulersHolder.computationScheduler)
+                .observeOn(schedulersHolder.ioScheduler)
         val stopObservable = actionObservable.ofType(MainAction.StopLoading::class.java)
         return repository
                 .loadUsers(lastUserId)

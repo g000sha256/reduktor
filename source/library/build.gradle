@@ -6,8 +6,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    implementation libraries.kotlin
-    implementation libraries.rxJava
+    implementation gradleLibrary.kotlin
+    implementation gradleLibrary.rxJava
 }
 jar {
     exclude "META-INF/library.kotlin_module"

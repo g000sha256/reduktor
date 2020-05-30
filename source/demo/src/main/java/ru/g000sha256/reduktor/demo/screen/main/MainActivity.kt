@@ -18,15 +18,15 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         val application = application as Application
         viewModel = lastNonConfigurationInstance ?: createViewModel(application, savedInstanceState)
-        val schedulersFactory = application.schedulersFactory
+        val schedulersHolder = application.schedulersHolder
         val actionConsumer = viewModel.actionConsumer
-        router = MainRouter(this, viewModel.routeEventObservable, schedulersFactory, actionConsumer)
+        router = MainRouter(this, viewModel.routeEventObservable, schedulersHolder, actionConsumer)
         val viewGroup = findViewById<ViewGroup>(android.R.id.content)
         view = MainView(
                 viewModel.viewEventObservable,
                 viewModel.viewStateObservable,
                 application.glideRequestManager,
-                schedulersFactory,
+                schedulersHolder,
                 actionConsumer,
                 viewGroup
         )

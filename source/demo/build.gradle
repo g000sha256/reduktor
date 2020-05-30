@@ -43,18 +43,18 @@ androidExtensions {
     experimental = true
 }
 dependencies {
-    implementation libraries.androidX.appCompat
-    implementation libraries.androidX.recyclerView
-    implementation libraries.androidX.swipeRefreshLayout
-    implementation libraries.glide.core
-    implementation libraries.glide.okHttp
-    implementation libraries.gson
-    implementation libraries.kotlin
-    implementation libraries.material
-    implementation libraries.okHttp
-    implementation libraries.rxJava
-    implementation libraries.schedulersFactory.android
-    implementation libraries.schedulersFactory.core
+    implementation gradleLibrary.androidX.appCompat
+    implementation gradleLibrary.androidX.recyclerView
+    implementation gradleLibrary.androidX.swipeRefreshLayout
+    implementation gradleLibrary.glide.core
+    implementation gradleLibrary.glide.okHttp
+    implementation gradleLibrary.gson
+    implementation gradleLibrary.kotlin
+    implementation gradleLibrary.material
+    implementation gradleLibrary.okHttp
+    implementation gradleLibrary.rxJava
+    implementation gradleLibrary.schedulers.android
+    implementation gradleLibrary.schedulers.core
     implementation project(":source:library")
 }
 repositories {

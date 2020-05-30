@@ -11,8 +11,10 @@ import com.bumptech.glide.load.model.GlideUrl
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import ru.g000sha256.scheduler.MainSchedulerFactoryImpl
-import ru.g000sha256.schedulers_factory.SchedulersFactory
-import ru.g000sha256.schedulers_factory.SchedulersFactoryImpl
+import ru.g000sha256.schedulers.Schedulers
+import ru.g000sha256.schedulers.SchedulersFactory
+import ru.g000sha256.schedulers.SchedulersHolder
+import ru.g000sha256.schedulers.SchedulersImpl
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import com.bumptech.glide.RequestManager as GlideRequestManager
@@ -22,10 +24,12 @@ class Application : Application() {
 
     val apiRequestManager by lazy { ApiRequestManager(gson, okHttpClient) }
     val glideRequestManager by lazy { initGlideRequestManager(okHttpClient) }
-    val schedulersFactory by lazy { initSchedulersFactory() }
+    val schedulersFactory by lazy<SchedulersFactory> { schedulers }
+    val schedulersHolder by lazy<SchedulersHolder> { schedulers }
 
     private val gson by lazy { Gson() }
     private val okHttpClient by lazy { initOkHttpClient() }
+    private val schedulers by lazy { initSchedulers() }
 
     private fun initOkHttpClient(): OkHttpClient {
         val timeout = 30L
@@ -55,9 +59,9 @@ class Application : Application() {
         return glide.requestManagerRetriever.get(this)
     }
 
-    private fun initSchedulersFactory(): SchedulersFactory {
+    private fun initSchedulers(): Schedulers {
         val mainSchedulerFactory = MainSchedulerFactoryImpl()
-        return SchedulersFactoryImpl(mainSchedulerFactory)
+        return SchedulersImpl(mainSchedulerFactory)
     }
 
 }

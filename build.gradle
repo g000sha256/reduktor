@@ -1,8 +1,8 @@
 buildscript {
     apply from: "dependencies.gradle"
     dependencies {
-        classpath gradlePlugins.android
-        classpath gradlePlugins.kotlin
+        classpath gradlePlugin.android
+        classpath gradlePlugin.kotlin
     }
     repositories {
         google()
