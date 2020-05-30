@@ -39,7 +39,7 @@ You can enable logging using `enableLogs = true` and see all events and states.
 
 Components can work in a separate thread.
 To do this, pass the correct scheduler.
-I recommend using a one thread scheduler from [SchedulersFactory](https://github.com/g000sha256/schedulers-factory).
+I recommend using a one thread scheduler from [Schedulers](https://github.com/g000sha256/schedulers).
 
 ```kotlin
 private fun createStore(
