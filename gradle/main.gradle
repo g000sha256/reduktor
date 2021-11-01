@@ -1,0 +1,25 @@
+apply plugin: "jacoco"
+apply plugin: "kotlin"
+apply plugin: "maven"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+dependencies {
+    implementation(lib.jetBrains.annotations) { transitive false }
+    implementation(lib.jetBrains.kotlin.stdLib) { transitive false }
+    implementation(lib.jetBrains.kotlin.stdLibCommon) { transitive false }
+}
+jacoco {
+    toolVersion "0.8.7"
+}
+jacocoTestReport {
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+repositories {
+    mavenCentral()
+}
+test {
+    finalizedBy jacocoTestReport
+}

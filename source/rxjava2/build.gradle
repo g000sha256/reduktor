@@ -1,0 +1,8 @@
+apply from: "$rootDir/gradle/main.gradle"
+dependencies {
+    implementation(lib.reactiveStreams) { transitive false }
+    implementation(lib.reactiveX.rxJava2) { transitive false }
+}
+dependencies {
+    implementation project(":source:core")
+}

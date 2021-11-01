@@ -1,0 +1,9 @@
+buildscript {
+    apply from: "gradle/dependencies.gradle"
+    dependencies {
+        classpath plugin.kotlin
+    }
+    repositories {
+        mavenCentral()
+    }
+}
