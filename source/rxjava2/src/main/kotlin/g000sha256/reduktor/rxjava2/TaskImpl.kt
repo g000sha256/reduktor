@@ -37,10 +37,8 @@ internal abstract class TaskImpl : Task {
     protected abstract fun createDisposable(onFinish: () -> Unit): Disposable
 
     private fun finish(onFinish: () -> Unit) {
-        synchronized(any) {
-            if (_status == Task.Status.STARTED) _status = Task.Status.COMPLETED
-            onFinish()
-        }
+        synchronized(any) { if (_status == Task.Status.STARTED) _status = Task.Status.COMPLETED }
+        onFinish()
     }
 
     private fun Disposable.disposeIfNeeded() {

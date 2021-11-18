@@ -124,12 +124,11 @@ class Store<ACTION, STATE>(
 
             override fun clear() {
                 synchronized(any) {
-                    if (mutableList.size == 0) return
+                    if (mutableList.size == 0) return@synchronized
                     mutableList
                         .toMutableList()
                         .apply { mutableList.clear() }
                         .forEach {
-                            it.isCleared = true
                             logTaskRemoved(it)
                             it.task.cancel()
                         }
@@ -139,7 +138,6 @@ class Store<ACTION, STATE>(
             override fun clear(key: String) {
                 synchronized(any) {
                     val taskInfo = mutableList.firstOrNull { it.key == key } ?: return@synchronized
-                    taskInfo.isCleared = true
                     mutableList.remove(taskInfo)
                     logTaskRemoved(taskInfo)
                     taskInfo.task.cancel()
@@ -159,8 +157,6 @@ class Store<ACTION, STATE>(
                 logTaskAdded(taskInfo)
                 task.start {
                     synchronized(any) {
-                        if (taskInfo.isCleared) return@synchronized
-                        taskInfo.isCleared = true
                         val isRemoved = mutableList.remove(taskInfo)
                         if (isRemoved) logTaskRemoved(taskInfo)
                     }
@@ -186,10 +182,6 @@ class Store<ACTION, STATE>(
         }
     }
 
-    private class TaskInfo(val task: Task, val id: Int, val key: String?) {
-
-        var isCleared = false
-
-    }
+    private class TaskInfo(val task: Task, val id: Int, val key: String?)
 
 }
