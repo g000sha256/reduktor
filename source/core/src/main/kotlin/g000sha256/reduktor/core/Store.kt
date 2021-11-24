@@ -148,15 +148,14 @@ class Store<ACTION, STATE>(
                 if (isReleased) return
                 val contains = mutableList.firstOrNull { it.task === task } != null
                 if (contains) throw IllegalStateException("Task has already been added")
-                task.status.checkNotCancelled()
-                task.status.checkNotCompleted()
-                task.status.checkNotStarted()
+                task.check()
                 key?.also { clear(it) }
                 val taskInfo = TaskInfo(task, id = ++counter, key)
                 mutableList.add(taskInfo)
                 logTaskAdded(taskInfo)
                 task.start {
                     synchronized(any) {
+                        task.completeIfNeeded()
                         val isRemoved = mutableList.remove(taskInfo)
                         if (isRemoved) logTaskRemoved(taskInfo)
                     }

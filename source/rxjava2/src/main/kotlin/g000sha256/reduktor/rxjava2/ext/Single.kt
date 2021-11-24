@@ -9,9 +9,8 @@ import io.reactivex.functions.Consumer
 fun <T> Single<T>.toTask(onSuccess: Consumer<T>, onError: Consumer<Throwable>): Task {
     return object : TaskImpl() {
 
-        override fun createDisposable(onFinish: () -> Unit): Disposable {
-            return doAfterTerminate(onFinish)
-                .doOnDispose(onFinish)
+        override fun createDisposable(onTerminate: () -> Unit): Disposable {
+            return doAfterTerminate(onTerminate)
                 .subscribe(onSuccess, onError)
         }
 

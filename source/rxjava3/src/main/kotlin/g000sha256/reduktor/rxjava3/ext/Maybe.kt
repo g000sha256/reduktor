@@ -14,9 +14,8 @@ fun <T> Maybe<T>.toTask(
 ): Task {
     return object : TaskImpl() {
 
-        override fun createDisposable(onFinish: () -> Unit): Disposable {
-            return doAfterTerminate(onFinish)
-                .doOnDispose(onFinish)
+        override fun createDisposable(onTerminate: () -> Unit): Disposable {
+            return doAfterTerminate(onTerminate)
                 .subscribe(onSuccess, onError, onComplete)
         }
 

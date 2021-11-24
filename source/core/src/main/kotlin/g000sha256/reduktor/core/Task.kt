@@ -1,35 +1,62 @@
 package g000sha256.reduktor.core
 
-interface Task {
+abstract class Task {
 
-    val status: Status
+    private var status = Status.INITIALIZED
 
-    fun cancel()
+    protected abstract fun onCancel()
 
-    fun start(onFinish: () -> Unit)
+    protected abstract fun onStart(onTerminate: () -> Unit)
 
-    enum class Status {
+    internal fun cancel() {
+        checkNotCancelled()
+        checkNotCompleted()
+        checkStarted()
+        status = Status.CANCELLED
+        onCancel()
+    }
+
+    internal fun check() {
+        checkNotCancelled()
+        checkNotCompleted()
+        checkNotStarted()
+    }
+
+    internal fun completeIfNeeded() {
+        if (status == Status.STARTED) status = Status.COMPLETED
+    }
+
+    internal fun start(onTerminate: () -> Unit) {
+        checkNotCancelled()
+        checkNotCompleted()
+        checkNotStarted()
+        status = Status.STARTED
+        onStart(onTerminate)
+        if (status == Status.CANCELLED) onCancel()
+    }
+
+    private fun checkNotCancelled() {
+        if (status == Status.CANCELLED) throw IllegalStateException("Task has already been cancelled")
+    }
+
+    private fun checkNotCompleted() {
+        if (status == Status.COMPLETED) throw IllegalStateException("Task has already been completed")
+    }
+
+    private fun checkNotStarted() {
+        if (status == Status.STARTED) throw IllegalStateException("Task has already been started")
+    }
+
+    private fun checkStarted() {
+        if (status == Status.INITIALIZED) throw IllegalStateException("Task has not been started yet")
+    }
+
+    private enum class Status {
 
         CANCELLED,
         COMPLETED,
         INITIALIZED,
-        STARTED;
-
-        fun checkNotCancelled() {
-            if (this == CANCELLED) throw IllegalStateException("Task has already been cancelled")
-        }
-
-        fun checkNotCompleted() {
-            if (this == COMPLETED) throw IllegalStateException("Task has already been completed")
-        }
-
-        fun checkNotStarted() {
-            if (this == STARTED) throw IllegalStateException("Task has already been started")
-        }
-
-        fun checkStarted() {
-            if (this == INITIALIZED) throw IllegalStateException("Task has not been started yet")
-        }
+        STARTED
 
     }
 
